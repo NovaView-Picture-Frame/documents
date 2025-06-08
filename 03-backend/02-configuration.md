@@ -1,7 +1,7 @@
 ## New Project
 
 ```bash
-pnpm i -D typescript rolldown-vite koa @koa/router
+pnpm i -D typescript vite nexe concurrently wait-on koa @koa/router @types/koa @types/koa__router
 
 pnpm approve-builds
 
@@ -21,15 +21,26 @@ pnpm tsc --init
 
 ## Configurations
 
+### package.json
+
+```diff
++ 	"type": "module",
++ 	"scripts": {
++ 		"dev": "concurrently -k 'vite build --w' 'wait-on dist/index.js && node --watch $_'",
++ 		"build": "vite build && nexe -i dist/index.js -o dist/node --asset ~/.nexe/node-$(node -v)"
++ 	},
+  	...
+```
+
 ### tsconfig.json
 
 ```diff
       ...
 -     "target": "es2016",
-+     // "target": "ESNext",
++     // "target": "esnext",
       ...
 -     "module": "commonjs",
-+     // "module": "ESNext",
++     // "module": "esnext",
       ...
 -     // "moduleResolution": "node10",
 +     "moduleResolution": "bundler",
@@ -56,15 +67,29 @@ pnpm tsc --init
       ...
 ```
 
-### package.json
+### vite.config.ts
 
-```diff
-+ 	"type": "module",
-+ 	"main": "dist/main.js",
-+ 	"scripts": {
-+ 		"electron:dev": "vite build -w"
-+ 	},
-  	...
+```typescript
+import { defineConfig } from 'vite';
+import { builtinModules } from 'module';
+
+export default defineConfig({
+    build: {
+        lib: {
+            entry: 'src/index.ts',
+            formats: ['es'],
+        },
+        target: 'esnext',
+        rollupOptions: {
+            external: [
+                ...builtinModules.flatMap(module =>
+                    [module, `node:${module}`]
+                ),
+            ]
+        }
+    },
+})
+
 ```
 
 ### .gitignore
@@ -74,10 +99,4 @@ pnpm tsc --init
 node_modules
 dist
 
-```
-
-## Build
-
-```bash
-pnpm nexe -i src/index.ts -o dist/node --asset ~/.nexe/node-$(node -v)
 ```
