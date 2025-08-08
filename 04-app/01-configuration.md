@@ -32,7 +32,7 @@ flutter build web --wasm
 
 ## "No Device" when using non-standard versions of Chrome
 
-### \> Preferences: Open User Settings (JSON)
+### > Preferences: Open User Settings (JSON)
 
 ```diff
     ...

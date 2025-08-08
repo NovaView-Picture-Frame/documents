@@ -6,13 +6,13 @@ sudo apt update
 
 ## Install Node.js
 
-https://nodejs.org/en/download  
-Get Node.js® `vx.x.x (Current)` for `Linux` using `nvm` with `pnpm`
+https://nodejs.org/en/download/current  
+for `Linux` using `nvm` with `pnpm`
 
 ## Configure Git
 
 ```bash
-git config --list
+git config -l
 # execute on the local system
 
 git config --global user.name "<USERNAME>"
@@ -27,7 +27,7 @@ dpkg -l | grep libmali
 
 sudo apt purge <DRIVER_NAME>
 ```
-### Get g52 gbm driver
+### Install g52 gbm driver
 https://github.com/tsukumijima/libmali-rockchip/releases
 
 ```bash

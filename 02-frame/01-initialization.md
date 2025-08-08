@@ -11,7 +11,7 @@ echo 'export PATH=$PATH:/opt/flutter-elinux/bin' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-## Add Device
+## Custom Devices
 
 ```bash
 flutter-elinux config --enable-custom-devices

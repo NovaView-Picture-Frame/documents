@@ -1,23 +1,81 @@
-## Build
+## New Project
+
+## VS Code Settings
+
+### > TypeScript: Select TypeScript Version...
+`Use Workspace Version`
+
+## Configurations
 
 ```bash
-mkdir ~/.nexe && cd $_
+pnpm i -D typescript rolldown-vite concurrently wait-on @types/node
 
-export PYTHON=$(which python3)
-
-export MAKEFLAGS="-j<JOBS>"
-# Set the number of parallel jobs (no more than the number of logical CPU cores).
-# Ensure at least 2 GB (LLVM) or 2.5 GB (GCC) of RAM is available per job.
-
-echo 'console.log("hello")' | pnpm dlx nexe --build --verbose
-
-mv $(node -v | cut -c2-)/out/Release/node node-$(node -v)
-
-rm -rf .nexe $(node -v | cut -c2-)
+pnpm tsc --init
 ```
 
-## Clean Cache
+### .gitignore
 
-```bash
-rm -rf ~/.nexe
+```glob
+.DS_Store
+node_modules
+dist
+
+```
+
+### package.json
+
+```diff
++ 	"type": "module",
++ 	"scripts": {
++ 		"dev": "concurrently -k 'vite build -w' 'wait-on dist/index.js && node --watch $_'",
++ 		"build": "vite build"
++ 	},
+  	...
+```
+
+### tsconfig.json
+
+```diff
+      ...
+-     // "lib": ["esnext"],
++     "lib": ["esnext"],
+      ...
+-     // Style Options
+-     // "noImplicitReturns": true,
+-     // "noImplicitOverride": true,
+-     // "noUnusedLocals": true,
+-     // "noUnusedParameters": true,
+-     // "noFallthroughCasesInSwitch": true,
+-     // "noPropertyAccessFromIndexSignature": true,
++     "noImplicitReturns": true,
++     "noImplicitOverride": true,
++     "noUnusedLocals": true,
++     "noUnusedParameters": true,
++     "noFallthroughCasesInSwitch": true,
++     "noPropertyAccessFromIndexSignature": true,
+```
+
+### vite.config.ts
+
+```typescript
+import { defineConfig } from 'rolldown-vite'
+
+export default defineConfig({
+    ssr: {
+        noExternal: true,
+    },
+    build: {
+        ssr: 'src/index.ts',
+        target: 'esnext',
+        minify: true,
+    },
+})
+
+```
+
+### src/index.ts
+
+```typescript
+console.log("Hello, World!");
+
 ```

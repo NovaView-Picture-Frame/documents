@@ -1,102 +1,54 @@
-## New Project
+## Copy Native Dependencies
 
 ```bash
-pnpm i -D typescript vite nexe concurrently wait-on koa @koa/router @types/koa @types/koa__router
+pnpm i -D sharp vite-plugin-static-copy
 
 pnpm approve-builds
-
-pnpm tsc --init
 ```
 
-## VS Code Settings
-
-### .vscode/settings.json
-
-```jsonc
-{
-    "typescript.tsdk": "node_modules/typescript/lib"
-}
-
-```
-
-## Configurations
-
-### package.json
+### src/index.ts
 
 ```diff
-+ 	"type": "module",
-+ 	"scripts": {
-+ 		"dev": "concurrently -k 'vite build --w' 'wait-on dist/index.js && node --watch $_'",
-+ 		"build": "vite build && nexe -i dist/index.js -o dist/node --asset ~/.nexe/node-$(node -v)"
-+ 	},
-  	...
-```
+- console.log("Hello, World!");
++ import sharp from 'sharp';
++ 
++ console.log(sharp);
 
-### tsconfig.json
-
-```diff
-      ...
--     "target": "es2016",
-+     // "target": "esnext",
-      ...
--     "module": "commonjs",
-+     // "module": "esnext",
-      ...
--     // "moduleResolution": "node10",
-+     "moduleResolution": "bundler",
-      ...
--     // "noEmit": true,
-+     "noEmit": true,
-      ...
--     // "noUnusedLocals": true,
--     // "noUnusedParameters": true,
--     // "exactOptionalPropertyTypes": true,
--     // "noImplicitReturns": true,
--     // "noFallthroughCasesInSwitch": true,
--     // "noUncheckedIndexedAccess": true,
--     // "noImplicitOverride": true,
--     // "noPropertyAccessFromIndexSignature": true,
-+     "noUnusedLocals": true,
-+     "noUnusedParameters": true,
-+     "exactOptionalPropertyTypes": true,
-+     "noImplicitReturns": true,
-+     "noFallthroughCasesInSwitch": true,
-+     "noUncheckedIndexedAccess": true,
-+     "noImplicitOverride": true,
-+     "noPropertyAccessFromIndexSignature": true,
-      ...
 ```
 
 ### vite.config.ts
 
-```typescript
-import { defineConfig } from 'vite';
-import { builtinModules } from 'module';
-
-export default defineConfig({
-    build: {
-        lib: {
-            entry: 'src/index.ts',
-            formats: ['es'],
-        },
-        target: 'esnext',
-        rollupOptions: {
-            external: [
-                ...builtinModules.flatMap(module =>
-                    [module, `node:${module}`]
-                ),
-            ]
-        }
-    },
-})
-
-```
-
-### .gitignore
-
-```glob
-.DS_Store
-node_modules
-dist
-
+```diff
+  import { defineConfig } from 'rolldown-vite'
++ import { viteStaticCopy } from 'vite-plugin-static-copy'
+      ...
+      build: {
+          ssr: 'src/index.ts',
+          target: 'esnext',
+          minify: true,
+      },
++     plugins: [
++         viteStaticCopy({
++             targets: [
++                 {
++                     src: 'node_modules/**/@img/sharp-*/lib/sharp-*.node',
++                     dest: 'dependencies/@img',
++                     rename: (_name, _ext, path) => {
++                         const ver = path.match(/@img\/(sharp-[^/]+)/)?.[1];
++                         if (!ver) throw new Error(`Bad sharp path: ${path}`);
++                         return `${ver}/sharp.node`;
++                     }
++                 },
++                 {
++                     src: 'node_modules/**/@img/sharp-*/lib/libvips-cpp.*',
++                     dest: 'dependencies/@img',
++                     rename: (name, ext, path) => {
++                         const ver = path.match(/@img\/(sharp-[^/]+)/)?.[1];
++                         if (!ver) throw new Error(`Bad sharp path: ${path}`);
++                         return `${ver}/lib/${name}.${ext}`;
++                     }
++                 },
++             ],
++         }),
++     ],
 ```
