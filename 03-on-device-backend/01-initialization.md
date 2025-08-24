@@ -16,7 +16,7 @@ pnpm tsc --init
 ### .gitignore
 
 ```glob
-.DS_Store
+
 node_modules
 dist
 
@@ -27,7 +27,8 @@ dist
 ```diff
 + 	"type": "module",
 + 	"scripts": {
-+ 		"dev": "concurrently -k 'vite build -w' 'wait-on dist/index.js && node --watch $_'",
++ 		"dev:node": "wait-on dist/index.js && node --watch $_ ",
++ 		"dev": "concurrently -k 'vite build -w' 'npm:dev:node'",,
 + 		"build": "vite build"
 + 	},
   	...
@@ -36,11 +37,21 @@ dist
 ### tsconfig.json
 
 ```diff
+-     "module": "nodenext",
++     "module": "esnext",
++     "moduleResolution": "bundler",
+      "target": "esnext",
+-     "types": [],
++     // "types": [],
       ...
--     // "lib": ["esnext"],
-+     "lib": ["esnext"],
++     "noEmit": true,
+-     "sourceMap": true,
+-     "declaration": true,
+-     "declarationMap": true,
++     // "sourceMap": true,
++     // "declaration": true,
++     // "declarationMap": true,
       ...
--     // Style Options
 -     // "noImplicitReturns": true,
 -     // "noImplicitOverride": true,
 -     // "noUnusedLocals": true,
@@ -53,6 +64,9 @@ dist
 +     "noUnusedParameters": true,
 +     "noFallthroughCasesInSwitch": true,
 +     "noPropertyAccessFromIndexSignature": true,
+      ...
+-     "jsx": "react-jsx",
++     // "jsx": "react-jsx",
 ```
 
 ### vite.config.ts
@@ -68,6 +82,9 @@ export default defineConfig({
         ssr: 'src/index.ts',
         target: 'esnext',
         minify: true,
+    },
+    esbuild: {
+        legalComments: 'none',
     },
 })
 
